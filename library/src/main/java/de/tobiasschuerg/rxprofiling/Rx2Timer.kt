@@ -1,4 +1,4 @@
-package de.tobiasschuerg.rxprofiling
+package de.stocard.dev
 
 import io.reactivex.Flowable
 
@@ -9,12 +9,8 @@ import io.reactivex.Flowable
  */
 
 fun <T> Flowable<T>.measureFirst(what: String, callback: (String) -> Unit): Flowable<T> {
-    return measureFirstItem(this, what, callback)
-}
-
-fun <T> measureFirstItem(flowable: Flowable<T>, what: String, callback: (String) -> Unit): Flowable<T> {
     var timer: Long = 0
-    return flowable
+    return this
             .doOnSubscribe {
                 callback("RX-TIMER: subscribed($what)")
                 timer = System.currentTimeMillis()
@@ -22,15 +18,15 @@ fun <T> measureFirstItem(flowable: Flowable<T>, what: String, callback: (String)
             .emitCounter { count ->
                 if (count == 1) {
                     val millis = System.currentTimeMillis() - timer
-                    callback("RX-TIMER: ${millis.dash()} $what emitted after $millis millis")
+                    callback("RX-TIMER: ${millis.dash()} $what emitted first item after $millis millis")
                 } else {
-                    callback("RX-TIMER: `$what` ($count)")
+                    callback("RX-TIMER: `$what` emitted $count. item")
                 }
             }
 }
 
 fun <T> Flowable<T>.emitCounter(callback: (Int) -> Unit): Flowable<T> {
-    var count: Int = 0
+    var count: Int = 1
     return this.doOnNext { callback(count++) }
 }
 
