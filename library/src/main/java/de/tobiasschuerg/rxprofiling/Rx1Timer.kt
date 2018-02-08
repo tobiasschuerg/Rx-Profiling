@@ -1,6 +1,6 @@
 package de.tobiasschuerg.rxprofiling
 
-import io.reactivex.Flowable
+import rx.Observable
 
 /**
  * Measuring rx performance.
@@ -8,7 +8,7 @@ import io.reactivex.Flowable
  * Created by Tobias Schürg on 08.02.2018.
  */
 
-fun <T> Flowable<T>.measureFirst(what: String, callback: (String) -> Unit): Flowable<T> {
+fun <T> Observable<T>.measureFirst(what: String, callback: (String) -> Unit): Observable<T> {
     var timer: Long = 0
     return this
             .doOnSubscribe {
@@ -20,12 +20,12 @@ fun <T> Flowable<T>.measureFirst(what: String, callback: (String) -> Unit): Flow
                     val millis = System.currentTimeMillis() - timer
                     callback("RX-TIMER: ${millis.dash()} $what emitted first item after $millis millis")
                 } else {
-                    callback("RX-TIMER: `$what` emitted $count times")
+                    callback("RX-TIMER: `$what` emitted $count. item")
                 }
             }
 }
 
-fun <T> Flowable<T>.emitCounter(callback: (Int) -> Unit): Flowable<T> {
+fun <T> Observable<T>.emitCounter(callback: (Int) -> Unit): Observable<T> {
     var count: Int = 1
     return this.doOnNext { callback(count++) }
 }

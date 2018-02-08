@@ -4,7 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.os.Bundle
 import android.util.Log
-import de.stocard.dev.measureFirst
+import de.tobiasschuerg.rxprofiling.emitCounter
+import de.tobiasschuerg.rxprofiling.measureFirst
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -13,7 +14,8 @@ import java.util.concurrent.TimeUnit
 
 class MainActivity : Activity() {
 
-    val cd = CompositeDisposable()
+    private val cd = CompositeDisposable()
+    private val TAG = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,15 +26,15 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
 
-        val d = Flowable.interval(1, TimeUnit.SECONDS)
-                .delay(100, TimeUnit.MILLISECONDS)
-                .measureFirst("test", { Log.i("MainActivity", it) })
-                .delay(100, TimeUnit.MILLISECONDS)
+        val d = Flowable.interval(1000, TimeUnit.MILLISECONDS)
+                .emitCounter { Log.d(TAG, "count $it") }
+                .filter { it.toInt() % 3 == 0 }
+                .measureFirst("test", { Log.i(TAG, it) })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     text.text = "Item $it"
                 }, {
-                    Log.i("MainActivity", "Error $it")
+                    Log.i(TAG, "Error $it")
                 })
         cd.add(d)
     }
