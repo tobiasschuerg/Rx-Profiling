@@ -30,6 +30,7 @@ class MainActivity : Activity() {
                 .emitCounter { Log.d(TAG, "count $it") }
                 .filter { it.toInt() % 3 == 0 }
                 .measureFirst("test", { Log.i(TAG, it) })
+                .measureFirst { Log.d(TAG, "It took $it millis to emit the first item") }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
                     text.text = "Item $it"
