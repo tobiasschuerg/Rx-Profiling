@@ -26,18 +26,21 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
 
-        val d = Flowable.interval(1000, TimeUnit.MILLISECONDS)
-                .emitCounter { Log.d(TAG, "count $it") }
-                .filter { it.toInt() % 3 == 0 }
-                .measureFirst("test", { Log.i(TAG, it) })
-                .measureFirst { Log.d(TAG, "It took $it millis to emit the first item") }
+        val d = receiveMessages()
+                .emitCounter { Log.d(TAG, "message count $it") }
+                .measureFirst("message receiver") { Log.d(TAG, it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    text.text = "Item $it"
+                    text.text = "Message: $it"
                 }, {
                     Log.i(TAG, "Error $it")
                 })
         cd.add(d)
+    }
+
+    private fun receiveMessages(): Flowable<String> {
+        return Flowable.just("Hello", "World")
+                .delay(1337, TimeUnit.MILLISECONDS)
     }
 
     override fun onPause() {
